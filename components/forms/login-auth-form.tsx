@@ -11,36 +11,56 @@ import {
 import { Input } from '@/components/ui/input';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { signIn } from 'next-auth/react';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import GoogleSignInButton from '../github-auth-button';
 
 const formSchema = z.object({
-  email: z.string().email({ message: 'Enter a valid email address' })
+  email: z
+    .string()
+    .min(1, { message: 'Este campo deve ser preenchido.' })
+    .email('Esse não é um email válido.'),
+  password: z
+    .string({
+      message: 'Digite sua senha.'
+    })
+    .min(8, { message: 'Digite a sua senha completa.' })
 });
 
-type UserFormValue = z.infer<typeof formSchema>;
-
 export default function UserAuthForm() {
-  const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get('callbackUrl');
-  const [loading, setLoading] = useState(false);
-  const defaultValues = {
-    email: 'demo@gmail.com'
-  };
-  const form = useForm<UserFormValue>({
+  const router = useRouter();
+  const [errorMessage, setErrorMessage] = useState();
+  const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues
+    defaultValues: {
+      email: '',
+      password: ''
+    }
   });
 
-  const onSubmit = async (data: UserFormValue) => {
-    signIn('credentials', {
-      email: data.email,
-      callbackUrl: callbackUrl ?? '/dashboard'
-    });
-  };
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    console.log(values.email, values.password);
+    try {
+      const result = await signIn('credentials', {
+        email: values.email,
+        password: values.password,
+        redirect: false
+      });
+
+      if (result?.error) {
+        //@ts-ignore
+        setErrorMessage(result?.error);
+      } else {
+        setErrorMessage(undefined);
+        window.location.href = '/';
+      }
+    } catch (error) {
+      //@ts-ignore
+      setErrorMessage(error);
+    }
+  }
 
   return (
     <>
