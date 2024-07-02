@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -16,22 +17,20 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import GoogleSignInButton from '../github-auth-button';
+import Link from 'next/link';
 
 const formSchema = z.object({
   email: z
     .string()
     .min(1, { message: 'Este campo deve ser preenchido.' })
     .email('Esse não é um email válido.'),
-  password: z
-    .string({
-      message: 'Digite sua senha.'
-    })
-    .min(8, { message: 'Digite a sua senha completa.' })
+  password: z.string().min(8, { message: 'Digite a sua senha completa.' })
 });
 
 export default function UserAuthForm() {
   const router = useRouter();
   const [errorMessage, setErrorMessage] = useState();
+  const [loading, setLoading] = useState();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -88,8 +87,30 @@ export default function UserAuthForm() {
             )}
           />
 
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Senha</FormLabel>
+
+                <FormControl>
+                  <Input
+                    type="password"
+                    placeholder="Digite sua senha"
+                    {...field}
+                  />
+                </FormControl>
+                <FormDescription>
+                  <Link href="/forgot-password">Esqueci minha senha</Link>
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
           <Button disabled={loading} className="ml-auto w-full" type="submit">
-            Continue With Email
+            Entrar na minha conta
           </Button>
         </form>
       </Form>
@@ -98,12 +119,13 @@ export default function UserAuthForm() {
           <span className="w-full border-t" />
         </div>
         <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-background px-2 text-muted-foreground">
-            Or continue with
-          </span>
+          <Link href="/register">
+            <span className="bg-background px-2 text-muted-foreground">
+              Criar uma conta
+            </span>
+          </Link>
         </div>
       </div>
-      <GoogleSignInButton />
     </>
   );
 }

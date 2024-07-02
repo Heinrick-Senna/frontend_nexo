@@ -1,11 +1,11 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import UserAuthForm from '@/components/forms/user-auth-form';
+import UserAuthForm from '@/components/forms/login-auth-form';
 import { buttonVariants } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 export const metadata: Metadata = {
-  title: 'Authentication',
+  title: 'Bem vindo - Nexo Board',
   description: 'Authentication forms built using the components.'
 };
 
@@ -53,27 +53,27 @@ export default function AuthenticationPage() {
         <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
           <div className="flex flex-col space-y-2 text-center">
             <h1 className="text-2xl font-semibold tracking-tight">
-              Create an account
+              Bem-vindo!
             </h1>
             <p className="text-sm text-muted-foreground">
-              Enter your email below to create your account
+              acesse ou crie sua conta na nexo.
             </p>
           </div>
           <UserAuthForm />
           <p className="px-8 text-center text-sm text-muted-foreground">
-            By clicking continue, you agree to our{' '}
+            Ao fazer login vc concorda com nossos termos de uso <br />
             <Link
               href="/terms"
               className="underline underline-offset-4 hover:text-primary"
             >
-              Terms of Service
+              Teros de serviços
             </Link>{' '}
-            and{' '}
+            e{' '}
             <Link
               href="/privacy"
               className="underline underline-offset-4 hover:text-primary"
             >
-              Privacy Policy
+              Privacidade.
             </Link>
             .
           </p>
