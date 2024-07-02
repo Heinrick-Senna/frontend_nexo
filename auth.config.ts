@@ -1,14 +1,13 @@
-import NextAuth, { NextAuthOptions } from 'next-auth';
+import { NextAuthConfig } from 'next-auth';
 import CredentialProvider from 'next-auth/providers/credentials';
-import GithubProvider from 'next-auth/providers/github';
 
-const authConfig: NextAuthOptions = {
+const authConfig = {
   providers: [
     CredentialProvider({
-      name: 'Custom',
+      name: 'credentials',
       credentials: {
-        email: { label: 'Email', type: 'text' },
-        password: { label: 'Password', type: 'password' }
+        email: { label: 'email', type: 'text' },
+        password: { label: 'password', type: 'password' }
       },
 
       async authorize(credentials, req) {
@@ -50,7 +49,6 @@ const authConfig: NextAuthOptions = {
           if (user.errors) {
             throw new Error(user?.errors?.message);
           } else {
-            console.log('user', user);
             return user;
           }
         } catch (errors) {
@@ -68,6 +66,7 @@ const authConfig: NextAuthOptions = {
       user && (token.data = user);
       return token;
     },
+
     async session({ session, token }) {
       session = token as any;
       return session;
@@ -75,8 +74,8 @@ const authConfig: NextAuthOptions = {
   },
 
   pages: {
-    signIn: '/login'
+    signIn: '/'
   }
-};
+} satisfies NextAuthConfig;
 
 export default authConfig;

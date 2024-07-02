@@ -24,13 +24,16 @@ const formSchema = z.object({
     .string()
     .min(1, { message: 'Este campo deve ser preenchido.' })
     .email('Esse não é um email válido.'),
+
   password: z.string().min(8, { message: 'Digite a sua senha completa.' })
 });
 
 export default function UserAuthForm() {
-  const router = useRouter();
   const [errorMessage, setErrorMessage] = useState();
-  const [loading, setLoading] = useState();
+  const [loading, setLoading] = useState(false);
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get('callbackUrl');
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -40,25 +43,18 @@ export default function UserAuthForm() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values.email, values.password);
+    setLoading(true);
     try {
-      const result = await signIn('credentials', {
+      await signIn('credentials', {
         email: values.email,
         password: values.password,
-        redirect: false
+        callbackUrl: callbackUrl ?? '/dashboard'
       });
-
-      if (result?.error) {
-        //@ts-ignore
-        setErrorMessage(result?.error);
-      } else {
-        setErrorMessage(undefined);
-        window.location.href = '/';
-      }
     } catch (error) {
       //@ts-ignore
       setErrorMessage(error);
     }
+    setLoading(false);
   }
 
   return (
@@ -77,7 +73,7 @@ export default function UserAuthForm() {
                 <FormControl>
                   <Input
                     type="email"
-                    placeholder="Enter your email..."
+                    placeholder="Digite seu email..."
                     disabled={loading}
                     {...field}
                   />
@@ -97,7 +93,7 @@ export default function UserAuthForm() {
                 <FormControl>
                   <Input
                     type="password"
-                    placeholder="Digite sua senha"
+                    placeholder="Digite sua senha aqui..."
                     {...field}
                   />
                 </FormControl>
@@ -108,7 +104,7 @@ export default function UserAuthForm() {
               </FormItem>
             )}
           />
-
+          {errorMessage && <p>Email ou senhas incorretas.</p>}
           <Button disabled={loading} className="ml-auto w-full" type="submit">
             Entrar na minha conta
           </Button>
