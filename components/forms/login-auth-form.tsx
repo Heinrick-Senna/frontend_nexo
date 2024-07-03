@@ -45,11 +45,20 @@ export default function UserAuthForm() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true);
     try {
-      await signIn('credentials', {
+      const result = await signIn('credentials', {
         email: values.email,
         password: values.password,
-        callbackUrl: callbackUrl ?? '/dashboard'
+        callbackUrl: callbackUrl ?? '/dashboard',
+        redirect: false
       });
+
+      if (result?.error) {
+        //@ts-ignore
+        setErrorMessage(result?.error);
+      } else {
+        setErrorMessage(undefined);
+        window.location.href = '/dashboard';
+      }
     } catch (error) {
       //@ts-ignore
       setErrorMessage(error);
@@ -97,17 +106,22 @@ export default function UserAuthForm() {
                     {...field}
                   />
                 </FormControl>
-                <FormDescription>
-                  <Link href="/forgot-password">Esqueci minha senha</Link>
-                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
           />
-          {errorMessage && <p>Email ou senhas incorretas.</p>}
+          {errorMessage && (
+            <p style={{ textAlign: 'center' }}>Email ou senhas incorretas.</p>
+          )}
           <Button disabled={loading} className="ml-auto w-full" type="submit">
             Entrar na minha conta
           </Button>
+          <Link
+            href="/forgot-password"
+            className="bg-background px-2 text-muted-foreground"
+          >
+            Esqueci minha senha
+          </Link>
         </form>
       </Form>
       <div className="relative">

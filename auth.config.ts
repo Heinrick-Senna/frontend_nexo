@@ -49,6 +49,7 @@ const authConfig = {
           if (user.errors) {
             throw new Error(user?.errors?.message);
           } else {
+            console.log('user', user);
             return user;
           }
         } catch (errors) {
