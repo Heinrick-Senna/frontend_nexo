@@ -6,6 +6,7 @@ import NextTopLoader from 'nextjs-toploader';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { auth } from '@/auth';
+import GraphQlProvider from '@/lib/client';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -20,14 +21,17 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   const session = await auth();
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.className} overflow-hidden`}>
         <NextTopLoader />
-        <Providers session={session}>
-          <Toaster />
-          {children}
-        </Providers>
+        <GraphQlProvider>
+          <Providers session={session}>
+            <Toaster />
+            {children}
+          </Providers>
+        </GraphQlProvider>
       </body>
     </html>
   );

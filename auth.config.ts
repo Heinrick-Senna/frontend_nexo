@@ -1,42 +1,81 @@
 import { NextAuthConfig } from 'next-auth';
 import CredentialProvider from 'next-auth/providers/credentials';
-import GithubProvider from 'next-auth/providers/github';
 
 const authConfig = {
   providers: [
-    GithubProvider({
-      clientId: process.env.GITHUB_ID ?? '',
-      clientSecret: process.env.GITHUB_SECRET ?? ''
-    }),
     CredentialProvider({
+      name: 'credentials',
       credentials: {
-        email: {
-          type: 'email'
-        },
-        password: {
-          type: 'password'
-        }
+        email: { label: 'email', type: 'text' },
+        password: { label: 'password', type: 'password' }
       },
-      async authorize(credentials, req) {
-        const user = {
-          id: '1',
-          name: 'John',
-          email: credentials?.email as string
-        };
-        if (user) {
-          // Any object returned will be saved in `user` property of the JWT
-          return user;
-        } else {
-          // If you return null then an error will be displayed advising the user to check their details.
-          return null;
 
-          // You can also Reject this callback with an Error thus the user will be sent to the error page with the error message as a query parameter
+      async authorize(credentials, req) {
+        try {
+          if (!credentials) return null;
+          const email = credentials.email;
+          const password = credentials.password;
+          const response = await fetch('http://localhost:3000/graphql', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              query: `
+                mutation Login($email: String!, $password: String!) {
+                  login(data: { email: $email, password: $password }) {
+                    accessToken
+                    refreshToken
+                    user {
+                      firstname
+                      email
+                      id
+                      role
+                      lastname
+                      companyId
+                    }
+                  }
+                }
+              `,
+              variables: {
+                email,
+                password
+              }
+            })
+          });
+
+          const user = await response.json();
+
+          if (user.errors) {
+            throw new Error(user?.errors?.message);
+          } else {
+            console.log('user', user);
+            return user;
+          }
+        } catch (errors) {
+          return null;
         }
       }
     })
   ],
+  secret: process.env.JWT_ACCESS_SECRET,
+  session: {
+    strategy: 'jwt'
+  },
+  callbacks: {
+    async jwt({ token, user }) {
+      user && (token.data = user);
+      return token;
+    },
+
+    async session({ session, token }) {
+      session = token as any;
+      return session;
+    }
+  },
+
   pages: {
-    signIn: '/' //sigin page
+    signIn: '/'
   }
 } satisfies NextAuthConfig;
 
