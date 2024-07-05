@@ -21,11 +21,16 @@ export function UserNav() {
           <Button variant="ghost" className="relative h-8 w-8 rounded-full">
             <Avatar className="h-8 w-8">
               <AvatarImage
+                //@ts-ignore
                 src={session?.data?.data?.login?.user?.image ?? ''}
+                //@ts-ignore
                 alt={session?.data?.data?.login?.user?.firstname ?? ''}
               />
               <AvatarFallback>
-                {session?.data?.data?.login?.user?.firstname?.[0]}
+                {
+                  //@ts-ignore
+                  session?.data?.data?.login?.user?.firstname?.[0]
+                }
               </AvatarFallback>
             </Avatar>
           </Button>
@@ -34,10 +39,16 @@ export function UserNav() {
           <DropdownMenuLabel className="font-normal">
             <div className="flex flex-col space-y-1">
               <p className="text-sm font-medium leading-none">
-                {session?.data?.data?.login?.user?.firstname}
+                {
+                  //@ts-ignore
+                  session?.data?.data?.login?.user?.firstname
+                }
               </p>
               <p className="text-xs leading-none text-muted-foreground">
-                {session?.data?.data?.login?.user?.email}
+                {
+                  //@ts-ignore
+                  session?.data?.data?.login?.user?.email
+                }
               </p>
             </div>
           </DropdownMenuLabel>
